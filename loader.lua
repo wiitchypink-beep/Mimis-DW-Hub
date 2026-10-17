@@ -1,6 +1,6 @@
 -- Mimi's DW Hub | GitHub loader
 -- Replace YOUR_GITHUB_USERNAME with your GitHub username after uploading these files.
-local OWNER = "YOUR_GITHUB_USERNAME"
+local OWNER = "witchypink-beep"
 local REPO = "Mimis-DW-Hub"
 local BRANCH = "main"
 assert(OWNER ~= "YOUR_GITHUB_USERNAME", "Set your GitHub username in Mimi's loader first.")
