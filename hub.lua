@@ -841,8 +841,7 @@ local h=record.highlight
 if h and h.Parent and h.Enabled then shown+=1 end
 end
 end
-print("[Mimi Hub] "..action.." | v0.2.9h | minimised:",minimized,
-"F8 privacy:",hidden,"ESP on:",active.Outlines,"visible highlights:",shown,"records:",found)
+print("[Mimi Hub]",action,"min:",minimized,"F8:",hidden,"ESP:",active.Outlines,"outlines:",shown.."/"..found)
 end
 local function setMinimized(on)
 if on and closeColorWheel then closeColorWheel() end
@@ -853,19 +852,15 @@ styleScrolling.Visible=not on and currentTab=="Style"
 footer.Visible=not on
 panel.Size=on and UDim2.fromOffset(404,75)or UDim2.fromOffset(404,535)
 hideButton.Text=on and "+" or "−"
--- The minimise button NEVER toggles F8 privacy or disables any ESP category.
--- Repair any missing highlight objects without rescanning the whole map.
 if not hidden and active.Outlines then
 for _,category in ipairs(categories)do
 for object,record in pairs(markers[category])do
 addOutline(category,object,record)
-if record.highlight and record.highlight.Parent then
-record.highlight.Enabled=true
+if record.highlight then record.highlight.Enabled=true end
 end
 end
 end
-end
-logESPState(on and "MINIMISED (ESP remains on)" or "RESTORED")
+logESPState(on and "MINIMISED" or "RESTORED")
 end
 local function setHidden(on)
 if on and closeColorWheel then closeColorWheel()end
