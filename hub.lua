@@ -1,4 +1,4 @@
--- Mimi's DW Hub v0.2.9g (minimise keeps ESP on)
+-- Mimi's DW Hub v0.2.9h (minimise ESP diagnostic + repair)
 if not game:IsLoaded()then
 game.Loaded:Wait()
 end
@@ -131,7 +131,7 @@ create("TextLabel",header,{
 BackgroundTransparency=1,
 Size=UDim2.new(1,-112,0,19),
 Position=UDim2.fromOffset(18,41),
-Text="little fawn edition  •  v0.2.9g",
+Text="little fawn edition  •  v0.2.9h",
 TextColor3=palette.muted,
 TextSize=12,
 Font=Enum.Font.Gotham,
@@ -832,6 +832,18 @@ connect(rootConnections,CollectionService:GetInstanceAddedSignal("PopUp"),functi
 if active.Popups then suppressGui("Popups",obj)end
 end)
 local closeColorWheel
+local function logESPState(action)
+local found,shown=0,0
+for _,category in ipairs(categories)do
+for _,record in pairs(markers[category])do
+found+=1
+local h=record.highlight
+if h and h.Parent and h.Enabled then shown+=1 end
+end
+end
+print("[Mimi Hub] "..action.." | v0.2.9h | minimised:",minimized,
+"F8 privacy:",hidden,"ESP on:",active.Outlines,"visible highlights:",shown,"records:",found)
+end
 local function setMinimized(on)
 if on and closeColorWheel then closeColorWheel() end
 minimized=on
@@ -841,6 +853,19 @@ styleScrolling.Visible=not on and currentTab=="Style"
 footer.Visible=not on
 panel.Size=on and UDim2.fromOffset(404,75)or UDim2.fromOffset(404,535)
 hideButton.Text=on and "+" or "−"
+-- The minimise button NEVER toggles F8 privacy or disables any ESP category.
+-- Repair any missing highlight objects without rescanning the whole map.
+if not hidden and active.Outlines then
+for _,category in ipairs(categories)do
+for object,record in pairs(markers[category])do
+addOutline(category,object,record)
+if record.highlight and record.highlight.Parent then
+record.highlight.Enabled=true
+end
+end
+end
+end
+logESPState(on and "MINIMISED (ESP remains on)" or "RESTORED")
 end
 local function setHidden(on)
 if on and closeColorWheel then closeColorWheel()end
@@ -1576,6 +1601,7 @@ connect(rootConnections,closeButton.MouseButton1Click,shutdown)
 connect(rootConnections,UserInputService.InputBegan,function(input)
 if input.KeyCode==Enum.KeyCode.F8 then
 setHidden(not hidden)
+logESPState("F8 privacy toggled")
 end
 end)
 local dragging=false
@@ -1605,4 +1631,4 @@ panelStart.X.Scale,panelStart.X.Offset + delta.X,
 panelStart.Y.Scale,panelStart.Y.Offset + delta.Y
 )
 end)
-print("[Mimi Hub] Little Fawn Edition v0.2.9g loaded. Minimise keeps ESP; F8 privacy.")
+print("[Mimi Hub] Little Fawn Edition v0.2.9h loaded. Minimise retains ESP; F8 hides ESP.")
