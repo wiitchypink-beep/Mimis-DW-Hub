@@ -1,4 +1,4 @@
--- Mimi's DW Hub v0.2.9f (GitHub loader and workspace assets)
+-- Mimi's DW Hub v0.2.9g (minimise keeps ESP on)
 if not game:IsLoaded()then
 game.Loaded:Wait()
 end
@@ -26,6 +26,8 @@ pcall(environment.MimiDWHubDestroy)
 end
 local alive=true
 local hidden=false
+local minimized=false
+local currentTab="Main"
 local rootConnections={}
 local roomConnections={}
 local mapConnections={}
@@ -129,7 +131,7 @@ create("TextLabel",header,{
 BackgroundTransparency=1,
 Size=UDim2.new(1,-112,0,19),
 Position=UDim2.fromOffset(18,41),
-Text="little fawn edition  •  v0.2.9",
+Text="little fawn edition  •  v0.2.9g",
 TextColor3=palette.muted,
 TextSize=12,
 Font=Enum.Font.Gotham,
@@ -196,9 +198,10 @@ local scrolling=newScrollingFrame("MainSettings")
 local styleScrolling=newScrollingFrame("ESPStyleSettings")
 styleScrolling.Visible=false
 local function showTab(tab)
+currentTab=tab
 local isMain=tab=="Main"
-scrolling.Visible=isMain
-styleScrolling.Visible=not isMain
+scrolling.Visible=isMain and not minimized
+styleScrolling.Visible=not isMain and not minimized
 mainTabButton.BackgroundColor3=isMain and palette.caramel or palette.row
 mainTabButton.TextColor3=isMain and palette.background or palette.cream
 styleTabButton.BackgroundColor3=isMain and palette.row or palette.caramel
@@ -211,7 +214,7 @@ local footer=create("TextLabel",panel,{
 BackgroundTransparency=1,
 Position=UDim2.new(0,14,1,-45),
 Size=UDim2.new(1,-28,0,31),
-Text="F8 hides the menu + ESP  •  Close = full cleanup",
+Text="− minimises, ESP stays on  •  F8 hides all  •  × closes",
 TextColor3=palette.muted,
 TextSize=11,
 Font=Enum.Font.Gotham,
@@ -829,6 +832,16 @@ connect(rootConnections,CollectionService:GetInstanceAddedSignal("PopUp"),functi
 if active.Popups then suppressGui("Popups",obj)end
 end)
 local closeColorWheel
+local function setMinimized(on)
+if on and closeColorWheel then closeColorWheel() end
+minimized=on
+tabBar.Visible=not on
+scrolling.Visible=not on and currentTab=="Main"
+styleScrolling.Visible=not on and currentTab=="Style"
+footer.Visible=not on
+panel.Size=on and UDim2.fromOffset(404,75)or UDim2.fromOffset(404,535)
+hideButton.Text=on and "+" or "−"
+end
 local function setHidden(on)
 if on and closeColorWheel then closeColorWheel()end
 hidden=on
@@ -1557,7 +1570,7 @@ TextWrapped=true,
 TextSize=12,
 })
 connect(rootConnections,hideButton.MouseButton1Click,function()
-setHidden(true)
+setMinimized(not minimized)
 end)
 connect(rootConnections,closeButton.MouseButton1Click,shutdown)
 connect(rootConnections,UserInputService.InputBegan,function(input)
@@ -1592,4 +1605,4 @@ panelStart.X.Scale,panelStart.X.Offset + delta.X,
 panelStart.Y.Scale,panelStart.Y.Offset + delta.Y
 )
 end)
-print("[Mimi Hub] Little Fawn Edition v0.2.9f loaded. Smooth wheel + saved ESP settings; F8 privacy.")
+print("[Mimi Hub] Little Fawn Edition v0.2.9g loaded. Minimise keeps ESP; F8 privacy.")
